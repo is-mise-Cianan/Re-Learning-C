@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Compiled binaries
+game
+pong
+*.o
+*.out
