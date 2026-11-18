@@ -22,7 +22,8 @@ int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
     SetTargetFPS(60);
 
-    struct Paddle paddle = {{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.8}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
+    struct Paddle paddle1 = {{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.8}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
+    struct Paddle paddle2 = {{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.2}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
 
     struct Ball ball = {SCREEN_WIDTH/2, SCREEN_HEIGHT * 0.2, 10, {250, 150}};
 
@@ -46,17 +47,28 @@ int main(void) {
         //KEY CONTROLS
         //movement controls
         if (game != 0){
+            if (IsKeyDown(KEY_D)){
+                paddle1.paddle_coords.x += paddle.paddle_velocity * dt;
+            }
+            if (IsKeyDown(KEY_A)){
+                paddle1.paddle_coords.x -= paddle.paddle_velocity * dt;
+            }
+
             if (IsKeyDown(KEY_RIGHT)){
-                paddle.paddle_coords.x += paddle.paddle_velocity * dt;
+                paddle2.paddle_coords.x += paddle.paddle_velocity * dt;
             }
             if (IsKeyDown(KEY_LEFT)){
-                paddle.paddle_coords.x -= paddle.paddle_velocity * dt;
+                paddle2.paddle_coords.x -= paddle.paddle_velocity * dt;
             }
         }
 
         //restart controls
         if (game == 0){
             if (IsKeyDown(KEY_R)){
+                ball.ball_coords.x = SCREEN_WIDTH/2;
+                ball.ball_coords.y = SCREEN_HEIGHT * 0.2;
+                ball.ball_velocity.x = 250;
+                ball.ball_velocity.x = 150;
                 game = 1;
             }
         }
@@ -128,13 +140,14 @@ int main(void) {
             if(game == 1){
                 DrawRectangle(paddle.paddle_coords.x, paddle.paddle_coords.y, paddle.paddle_height, paddle.paddle_width, WHITE);
 
-                DrawCircle( ball.ball_coords.x, ball.ball_coords.y, ball.radius, WHITE);
+                DrawCircle(ball.ball_coords.x, ball.ball_coords.y, ball.radius, WHITE);
             }
 
             if(game == 0){
-                DrawText("!!GAME OVER!!", SCREEN_WIDTH, SCREEN_HEIGHT + 20, 15, WHITE);
-                DrawText("            ", SCREEN_WIDTH, SCREEN_HEIGHT + 20, 10, WHITE);
-                DrawText("!!PRESS R TO RESTART!!", SCREEN_WIDTH, SCREEN_HEIGHT + 20, 10, WHITE);
+                int text_length = MeasureText("!!GAME OVER!!", 50);
+                DrawText("!!GAME OVER!!", SCREEN_WIDTH/2 - (text_length/2), (SCREEN_HEIGHT/2), 50, WHITE);
+                text_length = MeasureText("!!PRESS R TO RESTART!!", 30);
+                DrawText("!!PRESS R TO RESTART!!", SCREEN_WIDTH/2 - (text_length/2), (SCREEN_HEIGHT/2) + 40, 30, WHITE);
             }
 
         EndDrawing();
