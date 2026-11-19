@@ -38,13 +38,13 @@ int main(void) {
 
     Game g;
 
-    game_set(g);
+    game_set(&g);
 
     while (!WindowShouldClose()) {     
-        game_update(g);
+        game_update(&g);
 
         BeginDrawing();
-            game_draw(g);
+            game_draw(&g);
         EndDrawing();
     }
     
@@ -56,7 +56,7 @@ int main(void) {
 int game_draw(g){
     ClearBackground(BLACK);
 
-    if(game == 1){
+    if(g->game == 1){
         DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, WHITE);
         DrawRectangle(g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y, g->paddle2.paddle_height, g->paddle2.paddle_width, WHITE);
 
@@ -114,7 +114,7 @@ int game_update(g){
     //restart controls
     if (g->game == 0){
         if (IsKeyDown(KEY_R)){
-            game_reset(g);
+            game_reset(&g);
         }
     }
     else{
@@ -180,7 +180,7 @@ int game_update(g){
 
 }
 
-int game_set(&g){
+int game_set(g){
     g->paddle1 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.8}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
     g->paddle2 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.2}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
 
