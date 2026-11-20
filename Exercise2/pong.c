@@ -33,6 +33,7 @@ void game_reset(Game *g);
 void game_set(Game *g);
 void game_update(Game *g);
 void game_draw(Game *g);
+void draw_centred_text(char *text, int x, int y, int font_size);
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
@@ -62,8 +63,6 @@ void draw_centred_text(*text, int x, int y, int font_size){
 
 void game_draw(Game *g){
     ClearBackground(BLACK);
-    //strings
-    const char *victory_message = NULL;
 
     if(g->game == 1){
         DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, WHITE);
@@ -75,9 +74,9 @@ void game_draw(Game *g){
     if(g->game == 0){
         //game over
         if (g->score_1 >= MAX_SCORE){
-            draw_centred_text("!!Player One Wins!!", (SCREEN_HEIGHT/2) + 100, 30);
-        }else if (g->score_2 >= MAX_SCORE){
-            draw_centred_text("!!Player One Wins!!", (SCREEN_HEIGHT/2) + 100, 30);
+            draw_centred_text("!!Player One Wins!!", (SCREEN_HEIGHT/2), 30);
+        } else if (g->score_2 >= MAX_SCORE){
+            draw_centred_text("!!Player Two Wins!!", (SCREEN_HEIGHT/2), 30);
         }
         
         draw_centred_text("PRESS R TO RESTART", (SCREEN_HEIGHT/2) + 100, 30);
