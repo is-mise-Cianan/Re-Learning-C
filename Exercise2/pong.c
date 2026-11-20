@@ -5,6 +5,8 @@
 #define PADDLE_HEIGHT 5
 #define PADDLE_WIDTH 45
 
+#define MAX_SCORE 5
+
 typedef struct Ball {
     struct Vector2 ball_coords;
     float radius;
@@ -53,8 +55,15 @@ int main(void) {
     return 0;
 }
 
+void draw_centred_text(*text, int x, int y, int font_size){
+    int text_length = MeasureText(*text, font_size);
+    DrawText(*text, y, font_size, WHITE);
+}
+
 void game_draw(Game *g){
     ClearBackground(BLACK);
+    //strings
+    const char *victory_message = NULL;
 
     if(g->game == 1){
         DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, WHITE);
@@ -64,11 +73,14 @@ void game_draw(Game *g){
     }
 
     if(g->game == 0){
-        //make into function oassing string through pointer
-        int text_length = MeasureText("!!GAME OVER!!", 50);
-        DrawText("!!GAME OVER!!", SCREEN_WIDTH/2 - (text_length/2), (SCREEN_HEIGHT/2), 50, WHITE);
-        text_length = MeasureText("!!PRESS R TO RESTART!!", 30);
-        DrawText("!!PRESS R TO RESTART!!", SCREEN_WIDTH/2 - (text_length/2), (SCREEN_HEIGHT/2) + 40, 30, WHITE);
+        //game over
+        if (g->score_1 >= MAX_SCORE){
+            draw_centred_text("!!Player One Wins!!", (SCREEN_HEIGHT/2) + 100, 30);
+        }else if (g->score_2 >= MAX_SCORE){
+            draw_centred_text("!!Player One Wins!!", (SCREEN_HEIGHT/2) + 100, 30);
+        }
+        
+        draw_centred_text("PRESS R TO RESTART", (SCREEN_HEIGHT/2) + 100, 30);
     }
 }
 
@@ -183,16 +195,21 @@ void game_update(Game *g){
             g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
         }
 
-        //ball goes off the bottom
+        //how to score
         if (g->ball.ball_coords.y > SCREEN_HEIGHT){
-            g->game = 0;
+            g->score_1 ++;
+        }
+
+        else if (g->ball.ball_coord.y > 0){
+            g->score_2 ++;
+
         }
 
     }
 
 }
 
-//this function is to initally set up the same with paddles and ball in the correct positions.
+//this function is to initally set up the same with paddles and ball in the original positions.
 void game_set(Game *g){
     g->paddle1 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.8}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
     g->paddle2 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.2}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
@@ -205,14 +222,12 @@ void game_set(Game *g){
     g->score_2 = 0;
 }
 
-//this function is used to 
+//this function is used to restart the game after a point has been scored
 void game_reset(Game *g){
     g->ball.ball_coords.x = SCREEN_WIDTH/2;
     g->ball.ball_coords.y = SCREEN_HEIGHT * 0.2;
     g->ball.ball_velocity.x = 250;
     g->ball.ball_velocity.x = 150;
 
-    g->score_1 = 0;
-    g->score_2 = 0;
     g->game = 1;
 }
