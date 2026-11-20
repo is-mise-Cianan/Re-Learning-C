@@ -1,9 +1,10 @@
 #include "raylib.h"
 
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 500
+#define SCREEN_HEIGHT 750
 #define PADDLE_HEIGHT 5
 #define PADDLE_WIDTH 45
+#define GOAL_WIDTH 80
 
 #define MAX_SCORE 5
 
@@ -33,7 +34,7 @@ void game_reset(Game *g);
 void game_set(Game *g);
 void game_update(Game *g);
 void game_draw(Game *g);
-void draw_centred_text(char *text, int x, int y, int font_size);
+void draw_centred_text(char *text, int y, int font_size);
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
@@ -56,9 +57,9 @@ int main(void) {
     return 0;
 }
 
-void draw_centred_text(*text, int x, int y, int font_size){
-    int text_length = MeasureText(*text, font_size);
-    DrawText(*text, y, font_size, WHITE);
+void draw_centred_text(char *text, int y, int font_size){
+    int text_length = MeasureText(text, font_size);
+    DrawText(text, SCREEN_WIDTH/2 - text_length, y, font_size, WHITE);
 }
 
 void game_draw(Game *g){
@@ -69,6 +70,20 @@ void game_draw(Game *g){
         DrawRectangle(g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y, g->paddle2.paddle_height, g->paddle2.paddle_width, WHITE);
 
         DrawCircle(g->ball.ball_coords.x, g->ball.ball_coords.y, g->ball.radius, WHITE);
+
+        DrawText(TextFormat("Player One Score: %d", g->score_1), 10, 10, 10, WHITE);
+        DrawText(TextFormat("Player One Score: %d", g->score_2), 10, SCREEN_HEIGHT - 25, 10, WHITE);
+
+        //Walls
+        DrawRectangle(0, 0, SCREEN_WIDTH, 1, WHITE);
+        DrawRectangle(0, SCREEN_HEIGHT-1, SCREEN_WIDTH, 1, WHITE);
+
+        //Midline
+        DrawRectangle(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, 1, WHITE);
+
+        //GOAL
+        DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), 0, GOAL_WIDTH, 5, RED);
+        DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), SCREEN_HEIGHT - 10, GOAL_WIDTH, 5, RED);
     }
 
     if(g->game == 0){
@@ -99,25 +114,35 @@ void game_update(Game *g){
     float paddle2_right = g->paddle2.paddle_coords.x + PADDLE_WIDTH;
 
     //ball dimensions
-    float ball_top = g->ball.ball_coords.y + g->ball.radius;
+    float ball_top = g->ball.ball_coords.y - g->ball.radius;
     float ball_bottom = g->ball.ball_coords.y + g->ball.radius;
     float ball_left =  g->ball.ball_coords.x - g->ball.radius;
     float ball_right = g->ball.ball_coords.x + g->ball.radius;
 
+    //goal dimensions
+    //bottom goal
+    float goal_left = (SCREEN_WIDTH/2) - (GOAL_WIDTH/2);
+    float goal_right = (SCREEN_WIDTH/2) + (GOAL_WIDTH/2);
+
+    //top goal
+
+
     //KEY CONTROLS
     //movement controls
     if (g->game != 0){
-        if (IsKeyDown(KEY_D)){
+        //paddle 1
+        if (IsKeyDown(KEY_RIGHT)){
             g->paddle1.paddle_coords.x += g->paddle1.paddle_velocity * dt;
         }
-        if (IsKeyDown(KEY_A)){
+        if (IsKeyDown(KEY_LEFT)){
             g->paddle1.paddle_coords.x -= g->paddle1.paddle_velocity * dt;
         }
 
-        if (IsKeyDown(KEY_RIGHT)){
+        //paddle 2
+        if (IsKeyDown(KEY_D)){
             g->paddle2.paddle_coords.x += g->paddle2.paddle_velocity * dt;
         }
-        if (IsKeyDown(KEY_LEFT)){
+        if (IsKeyDown(KEY_A)){
             g->paddle2.paddle_coords.x -= g->paddle2.paddle_velocity * dt;
         }
     }
@@ -157,10 +182,24 @@ void game_update(Game *g){
             g->ball.ball_velocity.x = -(g->ball.ball_velocity.x);
         }
 
-        //ball touching top
-        if (g->ball.ball_coords.y <= 0 && (g->ball.ball_velocity.y <= 0) ){
-            g->ball.ball_coords.y = 1;
-            g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
+        //ball touching ends
+        if( ball_left >= goal_left && ball_right <= goal_right){
+            if ( g->ball.ball_coords.y >= SCREEN_HEIGHT && g->ball.ball_velocity.y > 0){
+                game_reset(g);
+                g->score_1 ++;
+            } else if( g->ball.ball_coords.y >= SCREEN_HEIGHT && g->ball.ball_velocity.y < 0){
+                game_reset(g);
+                g->score_2 ++;
+            }
+
+        } else{
+            if ( g->ball.ball_coords.y >= SCREEN_HEIGHT ){
+                g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
+            }
+
+            else if ( g->ball.ball_coords.y <= 0 ){
+                g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
+            }
         }
 
         //ball touching bottom
@@ -176,7 +215,7 @@ void game_update(Game *g){
             ball_bottom >= paddle1_top && // reached the paddle top
             ball_top <= paddle1_bottom && // hasn't passed through it
             ball_right >= paddle1_left && // overlaps horizontally
-            ball_left   <= paddle1_right  // overlaps horizontally
+            ball_left <= paddle1_right  // overlaps horizontally
         ){
             g->ball.ball_coords.y = paddle1_top - g->ball.radius;
             g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
@@ -184,24 +223,14 @@ void game_update(Game *g){
 
         //ball touching paddle2
         if (
-            g->ball.ball_velocity.y > 0 && // moving down
+            g->ball.ball_velocity.y < 0 && // moving down
             ball_bottom >= paddle2_top && // reached the paddle top
             ball_top <= paddle2_bottom && // hasn't passed through it
             ball_right >= paddle2_left && // overlaps horizontally
-            ball_left   <= paddle2_right  // overlaps horizontally
+            ball_left <= paddle2_right  // overlaps horizontally
         ){
-            g->ball.ball_coords.y = paddle2_top - g->ball.radius;
+            g->ball.ball_coords.y = paddle2_top + g->ball.radius;
             g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
-        }
-
-        //how to score
-        if (g->ball.ball_coords.y > SCREEN_HEIGHT){
-            g->score_1 ++;
-        }
-
-        else if (g->ball.ball_coord.y > 0){
-            g->score_2 ++;
-
         }
 
     }
@@ -210,8 +239,8 @@ void game_update(Game *g){
 
 //this function is to initally set up the same with paddles and ball in the original positions.
 void game_set(Game *g){
-    g->paddle1 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.8}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
-    g->paddle2 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.2}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
+    g->paddle1 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.85}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
+    g->paddle2 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.15}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
 
     g->ball = (Ball){SCREEN_WIDTH/2, SCREEN_HEIGHT * 0.2, 10, {250, 150}};
 
