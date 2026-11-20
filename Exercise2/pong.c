@@ -53,7 +53,7 @@ int main(void) {
     return 0;
 }
 
-int game_draw(g){
+void game_draw(Game *g){
     ClearBackground(BLACK);
 
     if(g->game == 1){
@@ -63,7 +63,7 @@ int game_draw(g){
         DrawCircle(g->ball.ball_coords.x, g->ball.ball_coords.y, g->ball.radius, WHITE);
     }
 
-    if(game == 0){
+    if(g->game == 0){
         //make into function oassing string through pointer
         int text_length = MeasureText("!!GAME OVER!!", 50);
         DrawText("!!GAME OVER!!", SCREEN_WIDTH/2 - (text_length/2), (SCREEN_HEIGHT/2), 50, WHITE);
@@ -72,14 +72,14 @@ int game_draw(g){
     }
 }
 
-int game_update(g){
+void game_update(Game *g){
     float dt = GetFrameTime();
 
     //paddle1 dimensions
     float paddle1_top = g->paddle1.paddle_coords.y;
-    float paddle_bottom = g->paddle1.paddle_coords.y + PADDLE_HEIGHT;
-    float paddle_left = g->paddle1.paddle_coords.x;
-    float paddle_right = g->paddle1.paddle_coords.x + PADDLE_WIDTH;
+    float paddle1_bottom = g->paddle1.paddle_coords.y + PADDLE_HEIGHT;
+    float paddle1_left = g->paddle1.paddle_coords.x;
+    float paddle1_right = g->paddle1.paddle_coords.x + PADDLE_WIDTH;
 
     //paddle2 dimensions
     float paddle2_top = g->paddle2.paddle_coords.y;
@@ -95,7 +95,7 @@ int game_update(g){
 
     //KEY CONTROLS
     //movement controls
-    if (game != 0){
+    if (g->game != 0){
         if (IsKeyDown(KEY_D)){
             g->paddle1.paddle_coords.x += g->paddle1.paddle_velocity * dt;
         }
@@ -114,7 +114,7 @@ int game_update(g){
     //restart controls
     if (g->game == 0){
         if (IsKeyDown(KEY_R)){
-            game_reset(&g);
+            game_reset(g);
         }
     }
     else{
@@ -159,28 +159,41 @@ int game_update(g){
             g->ball.ball_velocity.y = 150;
         }
 
-        //ball touching paddle
+        //ball touching paddle1
         if (
             g->ball.ball_velocity.y > 0 && // moving down
-            ball_bottom >= paddle_top && // reached the paddle top
-            ball_top <= paddle_bottom && // hasn't passed through it
-            ball_right >= paddle_left && // overlaps horizontally
-            ball_left   <= paddle_right  // overlaps horizontally
+            ball_bottom >= paddle1_top && // reached the paddle top
+            ball_top <= paddle1_bottom && // hasn't passed through it
+            ball_right >= paddle1_left && // overlaps horizontally
+            ball_left   <= paddle1_right  // overlaps horizontally
         ){
-            g->ball.ball_coords.y = paddle_top - g->ball.radius;
+            g->ball.ball_coords.y = paddle1_top - g->ball.radius;
+            g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
+        }
+
+        //ball touching paddle2
+        if (
+            g->ball.ball_velocity.y > 0 && // moving down
+            ball_bottom >= paddle2_top && // reached the paddle top
+            ball_top <= paddle2_bottom && // hasn't passed through it
+            ball_right >= paddle2_left && // overlaps horizontally
+            ball_left   <= paddle2_right  // overlaps horizontally
+        ){
+            g->ball.ball_coords.y = paddle2_top - g->ball.radius;
             g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
         }
 
         //ball goes off the bottom
         if (g->ball.ball_coords.y > SCREEN_HEIGHT){
-            game = 0;
+            g->game = 0;
         }
 
     }
 
 }
 
-int game_set(g){
+//this function is to initally set up the same with paddles and ball in the correct positions.
+void game_set(Game *g){
     g->paddle1 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.8}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
     g->paddle2 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.2}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
 
@@ -192,7 +205,8 @@ int game_set(g){
     g->score_2 = 0;
 }
 
-int game_reset(g){
+//this function is used to 
+void game_reset(Game *g){
     g->ball.ball_coords.x = SCREEN_WIDTH/2;
     g->ball.ball_coords.y = SCREEN_HEIGHT * 0.2;
     g->ball.ball_velocity.x = 250;
