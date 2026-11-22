@@ -182,7 +182,8 @@ void game_update(Game *g){
             g->ball.ball_velocity.x = -(g->ball.ball_velocity.x);
         }
 
-        //ball touching ends
+        //BALL TOUCH ENDS
+        //goal condition
         if( ball_left >= goal_left && ball_right <= goal_right){
             if ( g->ball.ball_coords.y >= SCREEN_HEIGHT && g->ball.ball_velocity.y > 0){
                 game_reset(g);
@@ -192,7 +193,9 @@ void game_update(Game *g){
                 g->score_2 ++;
             }
 
-        } else{
+        } 
+        //touching end no goal
+        else{
             if ( g->ball.ball_coords.y >= SCREEN_HEIGHT ){
                 g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
             }
