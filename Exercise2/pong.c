@@ -4,9 +4,9 @@
 #define SCREEN_HEIGHT 750
 #define PADDLE_HEIGHT 5
 #define PADDLE_WIDTH 45
-#define GOAL_WIDTH 80
+#define GOAL_WIDTH 160
 
-#define MAX_SCORE 5
+#define MAX_SCORE 1
 
 typedef struct Ball {
     struct Vector2 ball_coords;
@@ -59,7 +59,7 @@ int main(void) {
 
 void draw_centred_text(char *text, int y, int font_size){
     int text_length = MeasureText(text, font_size);
-    DrawText(text, SCREEN_WIDTH/2 - text_length, y, font_size, WHITE);
+    DrawText(text, SCREEN_WIDTH/2 - (text_length/2), y, font_size, WHITE);
 }
 
 void game_draw(Game *g){
@@ -89,12 +89,12 @@ void game_draw(Game *g){
     if(g->game == 0){
         //game over
         if (g->score_1 >= MAX_SCORE){
-            draw_centred_text("!!Player One Wins!!", (SCREEN_HEIGHT/2), 30);
+            draw_centred_text("!! Player One Wins !!", (SCREEN_HEIGHT/2), 25);
         } else if (g->score_2 >= MAX_SCORE){
-            draw_centred_text("!!Player Two Wins!!", (SCREEN_HEIGHT/2), 30);
+            draw_centred_text("!!Player Two Wins!!", (SCREEN_HEIGHT/2), 25);
         }
         
-        draw_centred_text("PRESS R TO RESTART", (SCREEN_HEIGHT/2) + 100, 30);
+        draw_centred_text("PRESS R TO RESTART", (SCREEN_HEIGHT/2) + 100, 25);
     }
 }
 
@@ -150,7 +150,7 @@ void game_update(Game *g){
     //restart controls
     if (g->game == 0){
         if (IsKeyDown(KEY_R)){
-            game_reset(g);
+            game_set(g);
         }
     }
     else{
@@ -187,14 +187,14 @@ void game_update(Game *g){
         if( ball_left >= goal_left && ball_right <= goal_right){
             if ( g->ball.ball_coords.y >= SCREEN_HEIGHT && g->ball.ball_velocity.y > 0){
                 game_reset(g);
-                g->score_1 ++;
-            } else if( g->ball.ball_coords.y >= SCREEN_HEIGHT && g->ball.ball_velocity.y < 0){
+                 g->score_1 ++;
+            } else if( g->ball.ball_coords.y <= 0 && g->ball.ball_velocity.y < 0){
                 game_reset(g);
                 g->score_2 ++;
             }
 
         } 
-        //touching end no goal
+        //touching end no goal -> bounce
         else{
             if ( g->ball.ball_coords.y >= SCREEN_HEIGHT ){
                 g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
@@ -203,6 +203,10 @@ void game_update(Game *g){
             else if ( g->ball.ball_coords.y <= 0 ){
                 g->ball.ball_velocity.y = -(g->ball.ball_velocity.y);
             }
+        }
+
+        if (g->score_1 >= MAX_SCORE || g->score_2 >= MAX_SCORE){
+            g->game = 0;
         }
 
         //ball touching bottom
