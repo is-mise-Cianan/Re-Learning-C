@@ -317,8 +317,20 @@ void draw_live_game(Game *g){
     //GOAL
     DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), 0, GOAL_WIDTH, 5, RED);
     DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), SCREEN_HEIGHT - 10, GOAL_WIDTH, 5, RED);
+
+    DrawCircleSector((Vector2){g->paddle2.paddle_coords.x + PADDLE_WIDTH/2, g->paddle2.paddle_coords.y - PADDLE_WIDTH/2}, PADDLE_WIDTH/4, 180, 360, 20, WHITE);
+    
+    DrawCircleSector((Vector2){g->paddle2.paddle_coords.x + PADDLE_WIDTH/2, g->paddle2.paddle_coords.y}, PADDLE_WIDTH/2, 180, 360, 20, WHITE);
 }
 
+// void draw_alien(Game *g){
+//     //check for contact
+//     //spaceship
+//     DrawCircleSector({g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y}, PADDLE_WIDTH/2, 180, 90, 60, WHITE);
+//     if (contact == 1){
+//         //shoot ray
+//     }
+// }
 
 
 //I should make the paddles be defenders, one being the planet defenders the other being the alien, bouncing a rocket back and forth (change of rocket depending on volocity)
