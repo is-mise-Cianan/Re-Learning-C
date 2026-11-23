@@ -8,8 +8,8 @@
 
 //colours
 #define COLOUR_NIGHTSKY_FADE1 CLITERAL(Color){234, 60, 205, 20}   // #ea3ccd
-#define COLOUR_NIGHTSKY_FADE2 CLITERAL(Color){234, 60, 205, 60}   // #ea3ccd
-#define COLOUR_NIGHTSKY_FADE3 CLITERAL(Color){234, 60, 205, 140}   // #ea3ccd
+#define COLOUR_NIGHTSKY_FADE2 CLITERAL(Color){234, 60, 205, 40}   // #ea3ccd
+#define COLOUR_NIGHTSKY_FADE3 CLITERAL(Color){234, 60, 205, 60}   // #ea3ccd
 #define COLOUR_NIGHTSKY CLITERAL(Color){41, 26, 122, 255}   // #291a7a
 
 #define COLOUR_MAGENTA CLITERAL(Color){ 234, 60, 205, 255 }   // #ea3ccd
@@ -52,6 +52,11 @@ void game_update(Game *g);
 void game_draw(Game *g);
 void draw_centred_text(char *text, int y, int font_size);
 
+void draw_background(void);
+void draw_sun(void);
+void draw_live_game(Game *g);
+
+
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
     SetTargetFPS(60);
@@ -79,46 +84,12 @@ void draw_centred_text(char *text, int y, int font_size){
 }
 
 void game_draw(Game *g){
-    ClearBackground(COLOUR_NIGHTSKY);
-    // DrawRectangle(0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT *0.3, COLOUR_NIGHTSKY);
-    // DrawRectangle(0, SCREEN_HEIGHT*0.3, SCREEN_WIDTH, SCREEN_HEIGHT *0.2, COLOUR_NIGHTSKY_FADE1);
-    // DrawRectangle(0, SCREEN_HEIGHT*0.2, SCREEN_WIDTH, SCREEN_HEIGHT *0.2, COLOUR_NIGHTSKY_FADE2);
+    draw_background();
 
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.4, (SCREEN_HEIGHT), COLOUR_NIGHTSKY_FADE3);
-
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.3, (SCREEN_HEIGHT) * 0.8, COLOUR_PINK);
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.2, (SCREEN_HEIGHT) * 0.6, COLOUR_PEACH);
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.1, (SCREEN_HEIGHT) * 0.4 , COLOUR_OLIVE);
-
-    //sum
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.22, COLOUR_WHITE_2);
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.19, COLOUR_WHITE_1);
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.15, COLOUR_LIME);
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.12, COLOUR_WHITE_1);
-    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.06, COLOUR_WHITE_2);
-    
-
-    //DrawRectangle(x,y,h,w, col) -> draw sun rays around sun
+    draw_sun();
 
     if(g->game == 1){
-        DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, WHITE);
-        DrawRectangle(g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y, g->paddle2.paddle_height, g->paddle2.paddle_width, WHITE);
-
-        DrawCircle(g->ball.ball_coords.x, g->ball.ball_coords.y, g->ball.radius, WHITE);
-
-        DrawText(TextFormat("Player One Score: %d", g->score_1), 10, 10, 10, WHITE);
-        DrawText(TextFormat("Player One Score: %d", g->score_2), 10, SCREEN_HEIGHT - 25, 10, WHITE);
-
-        //Walls
-        DrawRectangle(0, 0, SCREEN_WIDTH, 1, WHITE);
-        DrawRectangle(0, SCREEN_HEIGHT-1, SCREEN_WIDTH, 1, WHITE);
-
-        //Midline
-        DrawRectangle(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, 1, WHITE);
-
-        //GOAL
-        DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), 0, GOAL_WIDTH, 5, RED);
-        DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), SCREEN_HEIGHT - 10, GOAL_WIDTH, 5, RED);
+        draw_live_game(g);
     }
 
     if(g->game == 0){
@@ -301,3 +272,53 @@ void game_reset(Game *g){
 
     g->game = 1;
 }
+
+//draw functions
+void draw_sun(void){
+    //sun
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.22, COLOUR_WHITE_2);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.19, COLOUR_WHITE_1);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.15, COLOUR_LIME);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.12, COLOUR_WHITE_1);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_HEIGHT) * 0.06, COLOUR_WHITE_2);
+
+    //DrawRectangle(x,y,h,w, col) -> draw sun rays around sun
+}
+
+void draw_background(void){
+    ClearBackground(COLOUR_NIGHTSKY);
+
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.8, (SCREEN_HEIGHT) * 1.4, COLOUR_NIGHTSKY_FADE1);
+
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.6, (SCREEN_HEIGHT) * 1.2, COLOUR_NIGHTSKY_FADE2);
+
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.4, (SCREEN_HEIGHT), COLOUR_NIGHTSKY_FADE3);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.3, (SCREEN_HEIGHT) * 0.8, COLOUR_PINK);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.2, (SCREEN_HEIGHT) * 0.6, COLOUR_PEACH);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.1, (SCREEN_HEIGHT) * 0.4 , COLOUR_OLIVE);
+}
+
+void draw_live_game(Game *g){
+    DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, WHITE);
+    DrawRectangle(g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y, g->paddle2.paddle_height, g->paddle2.paddle_width, WHITE);
+
+    DrawCircle(g->ball.ball_coords.x, g->ball.ball_coords.y, g->ball.radius, WHITE);
+
+    DrawText(TextFormat("Player One Score: %d", g->score_1), 10, 10, 10, WHITE);
+    DrawText(TextFormat("Player One Score: %d", g->score_2), 10, SCREEN_HEIGHT - 25, 10, WHITE);
+
+    //Walls
+    DrawRectangle(0, 0, SCREEN_WIDTH, 1, WHITE);
+    DrawRectangle(0, SCREEN_HEIGHT-1, SCREEN_WIDTH, 1, WHITE);
+
+    //Midline
+    DrawRectangle(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, 1, WHITE);
+
+    //GOAL
+    DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), 0, GOAL_WIDTH, 5, RED);
+    DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), SCREEN_HEIGHT - 10, GOAL_WIDTH, 5, RED);
+}
+
+
+
+//I should make the paddles be defenders, one being the planet defenders the other being the alien, bouncing a rocket back and forth (change of rocket depending on volocity)
