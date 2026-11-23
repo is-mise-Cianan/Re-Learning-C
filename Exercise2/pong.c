@@ -6,6 +6,19 @@
 #define PADDLE_WIDTH 45
 #define GOAL_WIDTH 160
 
+//colours
+#define COLOUR_NIGHTSKY_FADE1 CLITERAL(Color){41, 26, 122, 20}   // #291a7a
+#define COLOUR_NIGHTSKY_FADE2 CLITERAL(Color){41, 26, 122, 60}   // #291a7a
+#define COLOUR_NIGHTSKY_FADE3 CLITERAL(Color){41, 26, 122, 140}   // #291a7a
+#define COLOUR_NIGHTSKY CLITERAL(Color){41, 26, 122, 255}   // #291a7a
+
+#define COLOUR_MAGENTA CLITERAL(Color){ 234, 60, 205, 255 }   // #ea3ccd
+#define COLOUR_PINK CLITERAL(Color){ 237, 110, 162, 255 }  // #ed6ea2
+#define COLOUR_PEACH CLITERAL(Color){ 237, 155, 113, 255 }  // #ed9b71
+#define COLOUR_OLIVE CLITERAL(Color){ 208, 204, 78, 255 }   // #d0cc4e
+#define COLOUR_LIME CLITERAL(Color){ 194, 251, 79, 255 }   // #c2fb4f
+
+
 #define MAX_SCORE 1
 
 typedef struct Ball {
@@ -63,7 +76,17 @@ void draw_centred_text(char *text, int y, int font_size){
 }
 
 void game_draw(Game *g){
-    ClearBackground(BLACK);
+    ClearBackground(COLOUR_MAGENTA);
+    DrawRectangle(0, SCREEN_HEIGHT*0.3, SCREEN_WIDTH, SCREEN_HEIGHT *0.2, COLOUR_NIGHTSKY_FADE1);
+    DrawRectangle(0, SCREEN_HEIGHT*0.2, SCREEN_WIDTH, SCREEN_HEIGHT *0.2, COLOUR_NIGHTSKY_FADE2);
+    DrawRectangle(0, SCREEN_HEIGHT*0.1, SCREEN_WIDTH, SCREEN_HEIGHT *0.2, COLOUR_NIGHTSKY_FADE3);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_WIDTH) * 0.9, COLOUR_PINK);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_WIDTH) * 0.75, COLOUR_PEACH);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_WIDTH*0.55) , COLOUR_OLIVE);
+    DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT), (SCREEN_WIDTH*0.35), COLOUR_LIME);
+    
+
+    //DrawRectangle(x,y,h,w, col) -> draw sun rays around sun
 
     if(g->game == 1){
         DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, WHITE);
