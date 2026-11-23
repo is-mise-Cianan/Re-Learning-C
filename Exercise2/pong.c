@@ -1,10 +1,10 @@
 #include "raylib.h"
 
-#define SCREEN_WIDTH 500
-#define SCREEN_HEIGHT 750
+#define SCREEN_WIDTH 700
+#define SCREEN_HEIGHT 900
 #define PADDLE_HEIGHT 5
 #define PADDLE_WIDTH 45
-#define GOAL_WIDTH 160
+#define GOAL_WIDTH 120
 
 //colours
 #define COLOUR_NIGHTSKY_FADE1 CLITERAL(Color){234, 60, 205, 20}   // #ea3ccd
@@ -22,7 +22,7 @@
 #define COLOUR_WHITE_1 CLITERAL(Color){ 255, 255, 255, 20 } 
 
 
-#define MAX_SCORE 1
+#define MAX_SCORE 5
 
 typedef struct Ball {
     struct Vector2 ball_coords;
@@ -56,10 +56,18 @@ void draw_background(void);
 void draw_sun(void);
 void draw_live_game(Game *g);
 
+Texture2D alien;
+Texture2D cow;
+Texture2D racket;
+
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong");
     SetTargetFPS(60);
+
+    alien = LoadTexture("PongAsset/pong_alien.png");
+    cow = LoadTexture("PongAsset/cow.png");
+    racket = LoadTexture("PongAsset/racket.png");
 
     Game g;
 
@@ -102,6 +110,28 @@ void game_draw(Game *g){
         
         draw_centred_text("PRESS R TO RESTART", (SCREEN_HEIGHT/2) + 100, 25);
     }
+}
+
+void draw_live_game(Game *g){
+    DrawTexture(racket, g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y - 40, WHITE);
+    DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, BLACK);
+
+    DrawTexture(alien, g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y, WHITE);
+    DrawRectangle(g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y, g->paddle2.paddle_height, g->paddle2.paddle_width, BLACK);
+
+    DrawTexture(cow, g->ball.ball_coords.x, g->ball.ball_coords.y, WHITE);
+    //DrawCircle(g->ball.ball_coords.x, g->ball.ball_coords.y, g->ball.radius, WHITE);
+
+    DrawText(TextFormat("Player One Score: %d", g->score_1), 10, 10, 10, WHITE);
+    DrawText(TextFormat("Player One Score: %d", g->score_2), 10, SCREEN_HEIGHT - 25, 10, WHITE);
+
+    //GOAL
+    DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), 0, GOAL_WIDTH, 10, RED);
+    DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), SCREEN_HEIGHT - 10, GOAL_WIDTH, 10, RED);
+
+    DrawCircleSector((Vector2){g->paddle2.paddle_coords.x + PADDLE_WIDTH/2, g->paddle2.paddle_coords.y - PADDLE_WIDTH/2}, PADDLE_WIDTH/4, 180, 360, 20, WHITE);
+    
+    DrawCircleSector((Vector2){g->paddle2.paddle_coords.x + PADDLE_WIDTH/2, g->paddle2.paddle_coords.y}, PADDLE_WIDTH/2, 180, 360, 20, WHITE);
 }
 
 void game_update(Game *g){
@@ -255,7 +285,7 @@ void game_set(Game *g){
     g->paddle1 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.85}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
     g->paddle2 = (Paddle){{SCREEN_WIDTH/2 - PADDLE_HEIGHT, SCREEN_HEIGHT*0.15}, PADDLE_WIDTH, PADDLE_HEIGHT, 450.0f};
 
-    g->ball = (Ball){SCREEN_WIDTH/2, SCREEN_HEIGHT * 0.2, 10, {250, 150}};
+    g->ball = (Ball){SCREEN_WIDTH/2, SCREEN_HEIGHT * 0.2, 10, {250, 250}};
 
     g->game = 1;
 
@@ -268,7 +298,7 @@ void game_reset(Game *g){
     g->ball.ball_coords.x = SCREEN_WIDTH/2;
     g->ball.ball_coords.y = SCREEN_HEIGHT * 0.2;
     g->ball.ball_velocity.x = 250;
-    g->ball.ball_velocity.x = 150;
+    g->ball.ball_velocity.y = 250;
 
     g->game = 1;
 }
@@ -298,39 +328,6 @@ void draw_background(void){
     DrawCircle((SCREEN_WIDTH/2), (SCREEN_HEIGHT) * 1.1, (SCREEN_HEIGHT) * 0.4 , COLOUR_OLIVE);
 }
 
-void draw_live_game(Game *g){
-    DrawRectangle(g->paddle1.paddle_coords.x, g->paddle1.paddle_coords.y, g->paddle1.paddle_height, g->paddle1.paddle_width, WHITE);
-    DrawRectangle(g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y, g->paddle2.paddle_height, g->paddle2.paddle_width, WHITE);
-
-    DrawCircle(g->ball.ball_coords.x, g->ball.ball_coords.y, g->ball.radius, WHITE);
-
-    DrawText(TextFormat("Player One Score: %d", g->score_1), 10, 10, 10, WHITE);
-    DrawText(TextFormat("Player One Score: %d", g->score_2), 10, SCREEN_HEIGHT - 25, 10, WHITE);
-
-    //Walls
-    DrawRectangle(0, 0, SCREEN_WIDTH, 1, WHITE);
-    DrawRectangle(0, SCREEN_HEIGHT-1, SCREEN_WIDTH, 1, WHITE);
-
-    //Midline
-    DrawRectangle(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, 1, WHITE);
-
-    //GOAL
-    DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), 0, GOAL_WIDTH, 5, RED);
-    DrawRectangle(((SCREEN_WIDTH/2) - (GOAL_WIDTH/2)), SCREEN_HEIGHT - 10, GOAL_WIDTH, 5, RED);
-
-    DrawCircleSector((Vector2){g->paddle2.paddle_coords.x + PADDLE_WIDTH/2, g->paddle2.paddle_coords.y - PADDLE_WIDTH/2}, PADDLE_WIDTH/4, 180, 360, 20, WHITE);
-    
-    DrawCircleSector((Vector2){g->paddle2.paddle_coords.x + PADDLE_WIDTH/2, g->paddle2.paddle_coords.y}, PADDLE_WIDTH/2, 180, 360, 20, WHITE);
-}
-
-// void draw_alien(Game *g){
-//     //check for contact
-//     //spaceship
-//     DrawCircleSector({g->paddle2.paddle_coords.x, g->paddle2.paddle_coords.y}, PADDLE_WIDTH/2, 180, 90, 60, WHITE);
-//     if (contact == 1){
-//         //shoot ray
-//     }
-// }
 
 
 //I should make the paddles be defenders, one being the planet defenders the other being the alien, bouncing a rocket back and forth (change of rocket depending on volocity)
